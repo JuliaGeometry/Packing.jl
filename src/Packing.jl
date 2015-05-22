@@ -1,5 +1,7 @@
 module Packing
+using GeometryTypes
 
-# package code goes here
+include("rectangle.jl")
+export RectangleNode
 
 end # module
