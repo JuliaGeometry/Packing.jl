@@ -17,7 +17,7 @@ RectanglePacker{T}(area::Rectangle{T})                  = RectanglePacker{T}(Bin
 isleaf(a::RectanglePacker)                              = isnull(a.children.left) && isnull(a.children.right)
 
 # This is rather append, but it seems odd to use another function here.
-# Still the worst idea eva, to call this push as well!?
+# Maybe its a bad idea, to call it push regardless!?
 function Base.push!{T}(node::RectanglePacker{T}, areas::Vector{Rectangle{T}})
     sort!(areas)
     RectanglePacker{T}[push!(node, area) for area in areas]
