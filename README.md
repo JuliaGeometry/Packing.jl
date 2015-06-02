@@ -8,3 +8,5 @@ More will come, hopefully!
 
 Other ALgorithms for Rectangles:
   * Skyline Bottom-Left
+Some C++ implementations:
+http://clb.demon.fi/files/RectangleBinPack/
