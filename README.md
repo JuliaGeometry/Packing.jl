@@ -1,6 +1,6 @@
 # Packing
 
-[![Build Status](https://travis-ci.org/SimonDanisch/Packing.jl.svg?branch=master)](https://travis-ci.org/SimonDanisch/Packing.jl)
+[![Build Status](https://travis-ci.org/JuliaGeometry/Packing.jl.svg)](https://travis-ci.org/JuliaGeometry/Packing.jl)
 
 Repository for packing algorithms.
 So far, just a very simple rectangle algorithm is implemented.
