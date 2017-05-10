@@ -1,8 +1,10 @@
 type BinaryNode{T}
     left::Nullable{T}
     right::Nullable{T}
-    BinaryNode()                  = new(Nullable{T}(), Nullable{T}())
-    BinaryNode(left::T, right::T) = new(Nullable{T}(a), Nullable{T}(b))
+
+    (::Type{BinaryNode{T}}){T}() = new{T}(Nullable{T}(a), Nullable{T}(b))
+    (::Type{BinaryNode}){T}(left::T, right::T) = new{T}(Nullable{T}(a), Nullable{T}(b))
+    (::Type{BinaryNode{T}}){T}(left::T, right::T) = new{T}(Nullable{T}(a), Nullable{T}(b))
 end
 type RectanglePacker{T}
     children::BinaryNode{RectanglePacker{T}}
@@ -38,4 +40,3 @@ function Base.push!{T}(node::RectanglePacker{T}, area::SimpleRectangle{T})
         return RectanglePacker(SimpleRectangle(rax,ray,raxw-rax,rayh-ray))
     end
 end
-
