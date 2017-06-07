@@ -2,7 +2,7 @@ type BinaryNode{T}
     left::Nullable{T}
     right::Nullable{T}
 
-    (::Type{BinaryNode{T}}){T}() = new{T}(Nullable{T}(a), Nullable{T}(b))
+    (::Type{BinaryNode{T}}){T}() = new{T}(Nullable{T}(), Nullable{T}())
     (::Type{BinaryNode}){T}(left::T, right::T) = new{T}(Nullable{T}(a), Nullable{T}(b))
     (::Type{BinaryNode{T}}){T}(left::T, right::T) = new{T}(Nullable{T}(a), Nullable{T}(b))
 end
