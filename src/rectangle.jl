@@ -1,22 +1,22 @@
-type BinaryNode{T}
-    left::Nullable{T}
-    right::Nullable{T}
+mutable struct BinaryNode{T}
+    left::Union{Nothing, T}
+    right::Union{Nothing, T}
 
-    (::Type{BinaryNode{T}}){T}() = new{T}(Nullable{T}(), Nullable{T}())
-    (::Type{BinaryNode}){T}(left::T, right::T) = new{T}(Nullable{T}(a), Nullable{T}(b))
-    (::Type{BinaryNode{T}}){T}(left::T, right::T) = new{T}(Nullable{T}(a), Nullable{T}(b))
+    (::Type{BinaryNode{T}}){T}() = new{T}(nothing, nothing)
+    (::Type{BinaryNode}){T}(left::T, right::T) = new{T}(nothing, nothing)
+    (::Type{BinaryNode{T}}){T}(left::T, right::T) = new{T}(nothing, nothing)
 end
-type RectanglePacker{T}
+mutable struct RectanglePacker{T}
     children::BinaryNode{RectanglePacker{T}}
     area::SimpleRectangle{T}
 end
 
-left(a::RectanglePacker)                                = get(a.children.left)
-left{T}(a::RectanglePacker{T}, r::RectanglePacker{T})   = (a.children.left = Nullable(r))
-right(a::RectanglePacker)                               = get(a.children.right)
-right{T}(a::RectanglePacker{T}, r::RectanglePacker{T})  = (a.children.right = Nullable(r))
+left(a::RectanglePacker)                                = a.children.left
+left{T}(a::RectanglePacker{T}, r::RectanglePacker{T})   = (a.children.left = r)
+right(a::RectanglePacker)                               = a.children.right
+right{T}(a::RectanglePacker{T}, r::RectanglePacker{T})  = (a.children.right = r)
 RectanglePacker{T}(area::SimpleRectangle{T})            = RectanglePacker{T}(BinaryNode{RectanglePacker{T}}(), area)
-isleaf(a::RectanglePacker)                              = isnull(a.children.left) && isnull(a.children.right)
+isleaf(a::RectanglePacker)                              = (a.children.left) == nothing && (a.children.right == nothing)
 
 # This is rather append, but it seems odd to use another function here.
 # Maybe its a bad idea, to call it push regardless!?
