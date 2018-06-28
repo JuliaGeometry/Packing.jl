@@ -2,9 +2,9 @@ mutable struct BinaryNode{T}
     left::Union{Nothing, T}
     right::Union{Nothing, T}
 
-    (::Type{BinaryNode{T}}){T}() = new{T}(nothing, nothing)
-    (::Type{BinaryNode}){T}(left::T, right::T) = new{T}(nothing, nothing)
-    (::Type{BinaryNode{T}}){T}(left::T, right::T) = new{T}(nothing, nothing)
+    BinaryNode{T}() where {T} = new{T}(nothing, nothing)
+    BinaryNode(left::T, right::T) where {T} = new{T}(nothing, nothing)
+    BinaryNode{T}(left::T, right::T) where {T} = new{T}(nothing, nothing)
 end
 mutable struct RectanglePacker{T}
     children::BinaryNode{RectanglePacker{T}}
@@ -12,19 +12,19 @@ mutable struct RectanglePacker{T}
 end
 
 left(a::RectanglePacker)                                = a.children.left
-left{T}(a::RectanglePacker{T}, r::RectanglePacker{T})   = (a.children.left = r)
+left(a::RectanglePacker{T}, r::RectanglePacker{T}) where {T}   = (a.children.left = r)
 right(a::RectanglePacker)                               = a.children.right
-right{T}(a::RectanglePacker{T}, r::RectanglePacker{T})  = (a.children.right = r)
-RectanglePacker{T}(area::SimpleRectangle{T})            = RectanglePacker{T}(BinaryNode{RectanglePacker{T}}(), area)
+right(a::RectanglePacker{T}, r::RectanglePacker{T}) where {T}  = (a.children.right = r)
+RectanglePacker(area::SimpleRectangle{T}) where {T}            = RectanglePacker{T}(BinaryNode{RectanglePacker{T}}(), area)
 isleaf(a::RectanglePacker)                              = (a.children.left) == nothing && (a.children.right == nothing)
 
 # This is rather append, but it seems odd to use another function here.
 # Maybe its a bad idea, to call it push regardless!?
-function Base.push!{T}(node::RectanglePacker{T}, areas::Vector{SimpleRectangle{T}})
+function Base.push!(node::RectanglePacker{T}, areas::Vector{SimpleRectangle{T}}) where T
     sort!(areas)
     RectanglePacker{T}[push!(node, area) for area in areas]
 end
-function Base.push!{T}(node::RectanglePacker{T}, area::SimpleRectangle{T})
+function Base.push!(node::RectanglePacker{T}, area::SimpleRectangle{T}) where T
     if !isleaf(node)
         l = push!(left(node), area)
         l == nothing && return push!(right(node), area) # if left does not have space, try right
