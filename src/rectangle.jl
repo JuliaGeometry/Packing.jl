@@ -6,17 +6,18 @@ mutable struct BinaryNode{T}
     BinaryNode(left::T, right::T) where {T} = new{T}(nothing, nothing)
     BinaryNode{T}(left::T, right::T) where {T} = new{T}(nothing, nothing)
 end
+
 mutable struct RectanglePacker{T}
     children::BinaryNode{RectanglePacker{T}}
     area::SimpleRectangle{T}
 end
 
-left(a::RectanglePacker)                                = a.children.left
-left(a::RectanglePacker{T}, r::RectanglePacker{T}) where {T}   = (a.children.left = r)
-right(a::RectanglePacker)                               = a.children.right
-right(a::RectanglePacker{T}, r::RectanglePacker{T}) where {T}  = (a.children.right = r)
-RectanglePacker(area::SimpleRectangle{T}) where {T}            = RectanglePacker{T}(BinaryNode{RectanglePacker{T}}(), area)
-isleaf(a::RectanglePacker)                              = (a.children.left) == nothing && (a.children.right == nothing)
+left(a::RectanglePacker) = a.children.left
+left(a::RectanglePacker{T}, r::RectanglePacker{T}) where {T} = (a.children.left = r)
+right(a::RectanglePacker) = a.children.right
+right(a::RectanglePacker{T}, r::RectanglePacker{T}) where {T} = (a.children.right = r)
+RectanglePacker(area::SimpleRectangle{T}) where {T} = RectanglePacker{T}(BinaryNode{RectanglePacker{T}}(), area)
+isleaf(a::RectanglePacker) = (a.children.left) == nothing && (a.children.right == nothing)
 
 # This is rather append, but it seems odd to use another function here.
 # Maybe its a bad idea, to call it push regardless!?
@@ -24,6 +25,7 @@ function Base.push!(node::RectanglePacker{T}, areas::Vector{SimpleRectangle{T}})
     sort!(areas)
     RectanglePacker{T}[push!(node, area) for area in areas]
 end
+
 function Base.push!(node::RectanglePacker{T}, area::SimpleRectangle{T}) where T
     if !isleaf(node)
         l = push!(left(node), area)
