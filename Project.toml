@@ -1,0 +1,16 @@
+name = "Packing"
+uuid = "19eb6ba3-879d-56ad-ad62-d5c202156566"
+version = "0.3.1"
+
+[deps]
+GeometryTypes = "4d00f742-c7ba-57c2-abde-4428a4b178cb"
+
+[compat]
+julia = "1"
+GeometryTypes = "0.8"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
