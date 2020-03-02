@@ -194,7 +194,6 @@ end
 
 function ScoreWorstAreaFit(width, height, free_rect::Rect2D)
     return -ScoreBestAreaFit(width, height, free_rect)
-
 end
 
 function ScoreWorstShortSideFit(width, height, free_rect::Rect2D)
@@ -215,7 +214,7 @@ function FindPositionForNewNode(packer::GuillotinePacker, w, h, rect_choice::Fre
         rect_i = free_rectangles[i]
         # If this is a perfect fit upright, choose it immediately.
         if (w == width(rect_i) && h == height(rect_i))
-            best_node = Rect2D(minimum(rect_i), Vec(w, height))
+            best_node = Rect2D(minimum(rect_i), Vec(w, h))
             free_node_idx = i
             break
         # If this is a perfect fit sideways, choose it.
