@@ -22,14 +22,15 @@ isleaf(a::RectanglePacker) = (a.children.left) == nothing && (a.children.right =
 # Maybe its a bad idea, to call it push regardless!?
 function Base.push!(node::RectanglePacker{T}, areas::Vector{Rect2D{T}}) where T
     sort!(areas, by=GeometryBasics.norm ∘ widths)
-    RectanglePacker{T}[push!(node, area) for area in areas]
+    return RectanglePacker{T}[push!(node, area) for area in areas]
 end
 
 function Base.push!(node::RectanglePacker{T}, area::Rect2D{T}) where T
     if !isleaf(node)
         l = push!(left(node), area)
-        l == nothing && return push!(right(node), area) # if left does not have space, try right
-        return l
+        l !== nothing && return l
+        # if left does not have space, try right
+        return push!(right(node), area)
     end
     newarea = RectanglePacker(area).area
     if all(widths(newarea) .<= widths(node.area))
@@ -44,5 +45,5 @@ function Base.push!(node::RectanglePacker{T}, area::Rect2D{T}) where T
         right(node, RectanglePacker(Rect2D(nax, nay, naxw - nax, nayh - nay)))
         return RectanglePacker(Rect2D(rax, ray, raxw - rax, rayh - ray))
     end
-    return
+    return nothing
 end
