@@ -26,4 +26,3 @@ push!(root, [Rect2D(0,0, rand(5:50), rand(5:50)) for i=1:20])
 # linesegments(FRect(0, 0, 1024, 1024))
 # poly!(rectangles, color = (:red, 0.1), strokewidth=1, strokecolor=:black)
 #
-scatter(1:4)
