@@ -18,11 +18,10 @@ right(a::RectanglePacker) = a.children.right
 right(a::RectanglePacker{T}, r::RectanglePacker{T}) where {T} = (a.children.right = r)
 RectanglePacker(area::Rect2D{T}) where {T} = RectanglePacker{T}(BinaryNode{RectanglePacker{T}}(), area)
 isleaf(a::RectanglePacker) = (a.children.left) == nothing && (a.children.right == nothing)
-
 # This is rather append, but it seems odd to use another function here.
 # Maybe its a bad idea, to call it push regardless!?
 function Base.push!(node::RectanglePacker{T}, areas::Vector{Rect2D{T}}) where T
-    sort!(areas)
+    sort!(areas, by=GeometryBasics.norm ∘ widths)
     RectanglePacker{T}[push!(node, area) for area in areas]
 end
 
