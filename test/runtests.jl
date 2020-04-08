@@ -1,4 +1,4 @@
-using Packing, GeometryTypes
+using Packing, GeometryBasics
 using Test
 
 # write your own tests here

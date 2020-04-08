@@ -1,5 +1,5 @@
 module Packing
-using GeometryTypes
+using GeometryBasics
 
 include("rectangle.jl")
 include("guillotine.jl")
