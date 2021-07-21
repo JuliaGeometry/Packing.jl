@@ -4,5 +4,5 @@ push!(packer, rects)
 push!(packer, Rect(0, 0, 100, 100))
 
 # using Makie
-# linesegments(FRect(0, 0, 1024, 1024))
+# linesegments(Rectf(0, 0, 1024, 1024))
 # poly!(packer.used_rectangles, color = (:red, 0.1), strokewidth=1, strokecolor=:black)

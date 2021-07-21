@@ -24,8 +24,8 @@ struct GuillotinePacker{T}
     merge::Bool
     rect_choice::FreeRectChoiceHeuristic
     split_method::GuillotineSplitHeuristic
-    free_rectangles::Vector{Rect2D{T}}
-    used_rectangles::Vector{Rect2D{T}}
+    free_rectangles::Vector{Rect2{T}}
+    used_rectangles::Vector{Rect2{T}}
 
 end
 
@@ -34,12 +34,12 @@ function GuillotinePacker(width::T, height::T; merge::Bool=true,
                 split_method::GuillotineSplitHeuristic=SplitMinimizeArea) where T
 
     packer = GuillotinePacker(width, height, merge, rect_choice, split_method,
-                              Rect2D{T}[], Rect2D{T}[])
-    push!(packer.free_rectangles, Rect2D(T(0), T(0), width, height))
+                              Rect2{T}[], Rect2{T}[])
+    push!(packer.free_rectangles, Rect2(T(0), T(0), width, height))
     return packer
 end
 
-function Base.push!(packer::GuillotinePacker, rects::AbstractVector{Rect2D{T}}) where T
+function Base.push!(packer::GuillotinePacker, rects::AbstractVector{Rect2{T}}) where T
     rects = copy(rects)
     free_rectangles = packer.free_rectangles
     used_rectangles = packer.used_rectangles
@@ -104,9 +104,9 @@ function Base.push!(packer::GuillotinePacker, rects::AbstractVector{Rect2D{T}}) 
         # Otherwise, we're good to go and do the actual packing.
         xy = minimum(free_rectangles[best_free_rect])
         if best_flipped
-            new_node = Rect2D(xy, reverse(widths(rects[best_rect])))
+            new_node = Rect2(xy, reverse(widths(rects[best_rect])))
         else
-            new_node = Rect2D(xy, widths(rects[best_rect]))
+            new_node = Rect2(xy, widths(rects[best_rect]))
         end
 
         # Remove the free space we lost in the bin.
@@ -126,7 +126,7 @@ function Base.push!(packer::GuillotinePacker, rects::AbstractVector{Rect2D{T}}) 
     end
 end
 
-function Base.push!(packer::GuillotinePacker, rect::Rect2D)
+function Base.push!(packer::GuillotinePacker, rect::Rect2)
     w, h = widths(rect)
     free_rectangles = packer.free_rectangles
     used_rectangles = packer.used_rectangles
@@ -164,7 +164,7 @@ function Occupancy(packer::GuillotinePacker)
 end
 
 #/ Returns the heuristic score value for placing a rectangle of size width*height into free_rect. Does not try to rotate.
-function score_by_heuristic(width, height, free_rect::Rect2D, rect_choice::FreeRectChoiceHeuristic)
+function score_by_heuristic(width, height, free_rect::Rect2, rect_choice::FreeRectChoiceHeuristic)
     rect_choice == RectBestAreaFit && return ScoreBestAreaFit(width, height, free_rect)
     rect_choice == RectBestShortSideFit && return ScoreBestShortSideFit(width, height, free_rect)
     rect_choice == RectBestLongSideFit && return ScoreBestLongSideFit(width, height, free_rect)
@@ -173,18 +173,18 @@ function score_by_heuristic(width, height, free_rect::Rect2D, rect_choice::FreeR
     rect_choice == RectWorstLongSideFit && return ScoreWorstLongSideFit(width, height, free_rect)
 end
 
-function ScoreBestAreaFit(w, h, free_rect::Rect2D)
+function ScoreBestAreaFit(w, h, free_rect::Rect2)
     return width(free_rect) * height(free_rect) - w * h
 end
 
-function ScoreBestShortSideFit(w, h, free_rect::Rect2D)
+function ScoreBestShortSideFit(w, h, free_rect::Rect2)
     leftoverHoriz = abs(width(free_rect) - w)
     leftoverVert = abs(height(free_rect) - h)
     leftover = min(leftoverHoriz, leftoverVert)
     return leftover
 end
 
-function ScoreBestLongSideFit(w, h, free_rect::Rect2D)
+function ScoreBestLongSideFit(w, h, free_rect::Rect2)
     leftoverHoriz = abs(width(free_rect) - w)
     leftoverVert = abs(height(free_rect) - h)
     leftover = max(leftoverHoriz, leftoverVert)
@@ -192,21 +192,21 @@ function ScoreBestLongSideFit(w, h, free_rect::Rect2D)
 
 end
 
-function ScoreWorstAreaFit(width, height, free_rect::Rect2D)
+function ScoreWorstAreaFit(width, height, free_rect::Rect2)
     return -ScoreBestAreaFit(width, height, free_rect)
 end
 
-function ScoreWorstShortSideFit(width, height, free_rect::Rect2D)
+function ScoreWorstShortSideFit(width, height, free_rect::Rect2)
     return -ScoreBestShortSideFit(width, height, free_rect)
 end
 
-function ScoreWorstLongSideFit(width, height, free_rect::Rect2D)
+function ScoreWorstLongSideFit(width, height, free_rect::Rect2)
     return -ScoreBestLongSideFit(width, height, free_rect)
 end
 
 function FindPositionForNewNode(packer::GuillotinePacker, w, h, rect_choice::FreeRectChoiceHeuristic)
     free_rectangles = packer.free_rectangles
-    best_node = Rect2D(0,0,0,0)
+    best_node = Rect2(0,0,0,0)
     free_node_idx = 0
     best_score = typemax(Int)
     #/ Try each free rectangle to find the best one for placement.
@@ -214,12 +214,12 @@ function FindPositionForNewNode(packer::GuillotinePacker, w, h, rect_choice::Fre
         rect_i = free_rectangles[i]
         # If this is a perfect fit upright, choose it immediately.
         if (w == width(rect_i) && h == height(rect_i))
-            best_node = Rect2D(minimum(rect_i), Vec(w, h))
+            best_node = Rect2(minimum(rect_i), Vec(w, h))
             free_node_idx = i
             break
         # If this is a perfect fit sideways, choose it.
         elseif (h == width(rect_i) && w == height(rect_i))
-            best_node = Rect2D(minimum(rect_i), Vec(h, w))
+            best_node = Rect2(minimum(rect_i), Vec(h, w))
             best_score = typemin(Int)
             free_node_idx = i
             break
@@ -227,7 +227,7 @@ function FindPositionForNewNode(packer::GuillotinePacker, w, h, rect_choice::Fre
         elseif (w <= width(rect_i) && h <= height(rect_i))
             score = score_by_heuristic(w, h, rect_i, rect_choice)
             if (score < best_score)
-                best_node = Rect2D(minimum(rect_i), Vec(w, h))
+                best_node = Rect2(minimum(rect_i), Vec(w, h))
                 best_score = score
                 free_node_idx = i
             end
@@ -235,7 +235,7 @@ function FindPositionForNewNode(packer::GuillotinePacker, w, h, rect_choice::Fre
         elseif (h <= width(rect_i) && w <= height(rect_i))
             score = score_by_heuristic(h, w, rect_i, rect_choice)
             if (score < best_score)
-                best_node = Rect2D(minimum(rect_i), Vec(h, w))
+                best_node = Rect2(minimum(rect_i), Vec(h, w))
                 best_score = score
                 free_node_idx = i
             end
@@ -244,7 +244,7 @@ function FindPositionForNewNode(packer::GuillotinePacker, w, h, rect_choice::Fre
     return best_node, free_node_idx
 end
 
-function split_freerect_by_heuristic(packer::GuillotinePacker, free_rect::Rect2D, placed_rect::Rect2D, method::GuillotineSplitHeuristic)
+function split_freerect_by_heuristic(packer::GuillotinePacker, free_rect::Rect2, placed_rect::Rect2, method::GuillotineSplitHeuristic)
     # Compute the lengths of the leftover area.
     w, h = widths(free_rect) .- widths(placed_rect)
 
@@ -283,16 +283,16 @@ end
 
 #/ This function will add the two generated rectangles into the free_rectangles array. The caller is expected to
 #/ remove the original rectangle from the free_rectangles array after that.
-function split_freerect_along_axis(packer::GuillotinePacker, free_rect::Rect2D, placed_rect::Rect2D, split_horizontal::Bool)
+function split_freerect_along_axis(packer::GuillotinePacker, free_rect::Rect2, placed_rect::Rect2, split_horizontal::Bool)
     free_rectangles = packer.free_rectangles
     # Form the two new rectangles.
     x, y = minimum(free_rect)
     if split_horizontal
-        bottom = Rect2D(x, y + height(placed_rect), width(free_rect), height(free_rect) - height(placed_rect))
-        right = Rect2D(x + width(placed_rect), y, width(free_rect) - width(placed_rect), height(placed_rect))
+        bottom = Rect2(x, y + height(placed_rect), width(free_rect), height(free_rect) - height(placed_rect))
+        right = Rect2(x + width(placed_rect), y, width(free_rect) - width(placed_rect), height(placed_rect))
     else # Split vertically
-        bottom = Rect2D(x, y + height(placed_rect), width(placed_rect), height(free_rect) - height(placed_rect))
-        right = Rect2D(x + width(placed_rect), y, width(free_rect) - width(placed_rect), height(free_rect))
+        bottom = Rect2(x, y + height(placed_rect), width(placed_rect), height(free_rect) - height(placed_rect))
+        right = Rect2(x + width(placed_rect), y, width(free_rect) - width(placed_rect), height(free_rect))
     end
 
     # Add the new rectangles into the free rectangle pool if they weren't degenerate.
@@ -318,12 +318,12 @@ function MergeFreeList(packer::GuillotinePacker)
                 if (minimum(rect_i)[2] == maximum(free_rectangles[j])[2])
                     new_y = minimum(rect_i)[2] - height(free_rectangles[j])
                     new_h = height(rect_i) + height(free_rectangles[j])
-                    free_rectangles[i] = Rect2D(minimum(rect_i)[1], new_y, Vec(width(rect_i), new_h))
+                    free_rectangles[i] = Rect2(minimum(rect_i)[1], new_y, Vec(width(rect_i), new_h))
                     splice!(free_rectangles, j)
                     j -= 1
                 elseif (maximum(rect_i)[2] == minimum(free_rectangles[j])[2])
                     new_h = height(rect_i) + height(free_rectangles[j])
-                    free_rectangles[i] = Rect2D(minimum(rect_i), Vec(width(rect_i), new_h))
+                    free_rectangles[i] = Rect2(minimum(rect_i), Vec(width(rect_i), new_h))
                     splice!(free_rectangles, j)
                     j -= 1
                 end
@@ -331,12 +331,12 @@ function MergeFreeList(packer::GuillotinePacker)
                 if (minimum(rect_i)[1] == minimum(free_rectangles[j])[1] + width(free_rectangles[j]))
                     new_x = minimum(rect_i)[1] - width(free_rectangles[j])
                     new_w = width(rect_i) + width(free_rectangles[j])
-                    free_rectangles[i] = Rect2D(new_x, minimum(rect_i)[2], new_w, height(rect_i))
+                    free_rectangles[i] = Rect2(new_x, minimum(rect_i)[2], new_w, height(rect_i))
                     splice!(free_rectangles, j)
                     j -= 1
                 elseif maximum(rect_i)[1] == minimum(free_rectangles[j])[1]
                     new_w = Vec(width(rect_i) + width(free_rectangles[j]), height(rect_i))
-                    free_rectangles[i] = Rect2D(minimum(rect_i), new_w)
+                    free_rectangles[i] = Rect2(minimum(rect_i), new_w)
                     splice!(free_rectangles, j)
                     j -= 1
                 end
