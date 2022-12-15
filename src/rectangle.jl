@@ -1,3 +1,5 @@
+# ported from https://github.com/joelverhagen/2D-Bin-Packing/blob/master/BinPacking/PackingTreeNode.h
+
 mutable struct RectanglePacker{T}
     # the rectangle represented by this node
     area::Rect{2, T}
